@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -24,48 +24,21 @@ function copyRecursiveSync(src, dest) {
   }
 }
 
-// 1. Ensure index.html, 404.html, .nojekyll in dist
-const devHtml = path.join(distDir, 'index.dev.html');
+// 1. Ensure 404.html and .nojekyll in dist
 const distHtml = path.join(distDir, 'index.html');
 const dist404 = path.join(distDir, '404.html');
 const distNoJekyll = path.join(distDir, '.nojekyll');
 
-if (fs.existsSync(devHtml)) {
-  fs.copyFileSync(devHtml, distHtml);
-  fs.copyFileSync(devHtml, dist404);
+if (fs.existsSync(distHtml)) {
+  fs.copyFileSync(distHtml, dist404);
 }
 fs.writeFileSync(distNoJekyll, '');
 
-// 2. Sync to docs directory
+// 2. Sync to docs directory for GitHub Pages compatibility
 if (!fs.existsSync(docsDir)) {
   fs.mkdirSync(docsDir, { recursive: true });
 }
 copyRecursiveSync(distDir, docsDir);
 fs.writeFileSync(path.join(docsDir, '.nojekyll'), '');
 
-// 3. Sync critical files to root
-if (fs.existsSync(distHtml)) {
-  fs.copyFileSync(distHtml, path.join(rootDir, 'index.html'));
-  fs.copyFileSync(distHtml, path.join(rootDir, '404.html'));
-}
-fs.writeFileSync(path.join(rootDir, '.nojekyll'), '');
-
-const distAssets = path.join(distDir, 'assets');
-const rootAssets = path.join(rootDir, 'assets');
-if (fs.existsSync(distAssets)) {
-  copyRecursiveSync(distAssets, rootAssets);
-}
-
-const distImages = path.join(distDir, 'images');
-const rootImages = path.join(rootDir, 'images');
-if (fs.existsSync(distImages)) {
-  copyRecursiveSync(distImages, rootImages);
-}
-
-const distVideos = path.join(distDir, 'videos');
-const rootVideos = path.join(rootDir, 'videos');
-if (fs.existsSync(distVideos)) {
-  copyRecursiveSync(distVideos, rootVideos);
-}
-
-console.log('✓ Postbuild sync complete: dist, docs, and root are ready for GitHub Pages.');
+console.log('✓ Postbuild sync complete: dist and docs are ready for GitHub Pages.');
